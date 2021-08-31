@@ -730,6 +730,7 @@ class YOLACTProtonet(BaseModule):
             mask_pred = self.crop(mask_pred, bboxes_for_cropping)
             mask_pred = mask_pred.permute(2, 0, 1).contiguous()
             mask_pred_list.append(mask_pred)
+
         return mask_pred_list
 
     @force_fp32(apply_to=('mask_pred', ))
@@ -855,6 +856,7 @@ class YOLACTProtonet(BaseModule):
         cls_segms = [[] for _ in range(self.num_classes)]
         if mask_pred.size(0) == 0:
             return cls_segms
+
 
         mask_pred = F.interpolate(
             mask_pred.unsqueeze(0), (img_h, img_w),

@@ -59,7 +59,7 @@ def train_detector(model,
                 'Automatically set "samples_per_gpu"="imgs_per_gpu"='
                 f'{cfg.data.imgs_per_gpu} in this experiments')
         cfg.data.samples_per_gpu = cfg.data.imgs_per_gpu
-
+    
     data_loaders = [
         build_dataloader(
             ds,

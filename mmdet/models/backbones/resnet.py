@@ -57,12 +57,18 @@ class BasicBlock(BaseModule):
     @property
     def norm1(self):
         """nn.Module: normalization layer after the first convolution layer"""
-        return getattr(self, self.norm1_name)
+        
+        # NOTE: This is maybe a hack?
+        # return getattr(self, self.norm1_name)
+        return getattr(self, "bn1")
 
     @property
     def norm2(self):
         """nn.Module: normalization layer after the second convolution layer"""
-        return getattr(self, self.norm2_name)
+        
+        # NOTE: This is also maybe a hack?
+        # return getattr(self, self.norm2_name)
+        return getattr(self, "bn2")
 
     def forward(self, x):
         """Forward function."""
@@ -248,56 +254,59 @@ class Bottleneck(BaseModule):
     @property
     def norm1(self):
         """nn.Module: normalization layer after the first convolution layer"""
-        return getattr(self, self.norm1_name)
+        # return getattr(self, self.norm1_name)
+        return getattr(self, "bn1")
 
     @property
     def norm2(self):
         """nn.Module: normalization layer after the second convolution layer"""
-        return getattr(self, self.norm2_name)
+        # return getattr(self, self.norm2_name)
+        return getattr(self, "bn2")
 
     @property
     def norm3(self):
         """nn.Module: normalization layer after the third convolution layer"""
-        return getattr(self, self.norm3_name)
+        # return getattr(self, self.norm3_name)
+        return getattr(self, "bn3")
 
     def forward(self, x):
         """Forward function."""
 
-        def _inner_forward(x):
-            identity = x
-            out = self.conv1(x)
-            out = self.norm1(out)
-            out = self.relu(out)
-
-            if self.with_plugins:
-                out = self.forward_plugin(out, self.after_conv1_plugin_names)
-
-            out = self.conv2(out)
-            out = self.norm2(out)
-            out = self.relu(out)
-
-            if self.with_plugins:
-                out = self.forward_plugin(out, self.after_conv2_plugin_names)
-
-            out = self.conv3(out)
-            out = self.norm3(out)
-
-            if self.with_plugins:
-                out = self.forward_plugin(out, self.after_conv3_plugin_names)
-
-            if self.downsample is not None:
-                identity = self.downsample(x)
-
-            out += identity
-
-            return out
-
         if self.with_cp and x.requires_grad:
-            out = cp.checkpoint(_inner_forward, x)
+            out = cp.checkpoint(self._inner_forward, x)
         else:
-            out = _inner_forward(x)
+            out = self._inner_forward(x)
 
         out = self.relu(out)
+
+        return out
+
+    def _inner_forward(self, x):
+        identity = x
+        out = self.conv1(x)
+        out = self.norm1(out)
+        out = self.relu(out)
+
+        if self.with_plugins:
+            out = self.forward_plugin(out, self.after_conv1_plugin_names)
+
+        out = self.conv2(out)
+        out = self.norm2(out)
+        out = self.relu(out)
+
+        if self.with_plugins:
+            out = self.forward_plugin(out, self.after_conv2_plugin_names)
+
+        out = self.conv3(out)
+        out = self.norm3(out)
+
+        if self.with_plugins:
+            out = self.forward_plugin(out, self.after_conv3_plugin_names)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
 
         return out
 

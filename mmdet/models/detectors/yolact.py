@@ -53,21 +53,25 @@ class YOLACT(SingleStageDetector):
             gt_labels (list[Tensor]): class indices corresponding to each box
             gt_bboxes_ignore (None | list[Tensor]): specify which bounding
                 boxes can be ignored when computing the loss.
-            gt_masks (None | Tensor) : true segmentation masks for each box
+            gt_masks (None | list[Tensor]) : true segmentation masks for each box
                 used if the architecture supports a segmentation task.
 
         Returns:
             dict[str, Tensor]: a dictionary of loss components
         """
         # convert Bitmap mask or Polygon Mask to Tensor here
-        gt_masks = [
-            gt_mask.to_tensor(dtype=torch.uint8, device=img.device)
-            for gt_mask in gt_masks
-        ]
+
+        # NOTE: (Steve) This is commented out because when consuming from
+        # the sensedataset it's already in the right format 
+        # gt_masks = [
+        #     gt_mask.to_tensor(dtype=torch.uint8, device=img.device)
+        #     for gt_mask in gt_masks
+        # ]
 
         x = self.extract_feat(img)
 
         cls_score, bbox_pred, coeff_pred = self.bbox_head(x)
+        
         bbox_head_loss_inputs = (cls_score, bbox_pred) + (gt_bboxes, gt_labels,
                                                           img_metas)
         losses, sampling_results = self.bbox_head.loss(
@@ -110,6 +114,7 @@ class YOLACT(SingleStageDetector):
             rescale=rescale)
 
         return list(zip(bbox_results, segm_results))
+        
 
     def aug_test(self, imgs, img_metas, rescale=False):
         """Test with augmentations."""

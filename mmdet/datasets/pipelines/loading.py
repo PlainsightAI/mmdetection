@@ -67,6 +67,7 @@ class LoadImageFromFile:
         if self.to_float32:
             img = img.astype(np.float32)
 
+        
         results['filename'] = filename
         results['ori_filename'] = results['img_info']['filename']
         results['img'] = img
@@ -241,8 +242,7 @@ class LoadAnnotations:
 
         Returns:
             dict: The dict contains loaded bounding box annotations.
-        """
-
+        """        
         ann_info = results['ann_info']
         results['gt_bboxes'] = ann_info['bboxes'].copy()
 
@@ -278,7 +278,6 @@ class LoadAnnotations:
         Returns:
             numpy.ndarray: The decode bitmap mask of shape (img_h, img_w).
         """
-
         if isinstance(mask_ann, list):
             # polygon -- a single object might consist of multiple parts
             # we merge all parts into one mask rle code
@@ -377,6 +376,7 @@ class LoadAnnotations:
             results = self._load_masks(results)
         if self.with_seg:
             results = self._load_semantic_seg(results)
+
         return results
 
     def __repr__(self):
@@ -477,7 +477,7 @@ class LoadPanopticAnnotations(LoadAnnotations):
             dict: The dict contains loaded bounding box, label, mask and
                 semantic segmentation annotations.
         """
-
+        print(results)
         if self.with_bbox:
             results = self._load_bboxes(results)
             if results is None:
@@ -515,7 +515,6 @@ class LoadProposals:
         Returns:
             dict: The dict contains loaded proposal annotations.
         """
-
         proposals = results['proposals']
         if proposals.shape[1] not in (4, 5):
             raise AssertionError(
@@ -555,6 +554,7 @@ class FilterAnnotations:
         gt_bboxes = results['gt_bboxes']
         w = gt_bboxes[:, 2] - gt_bboxes[:, 0]
         h = gt_bboxes[:, 3] - gt_bboxes[:, 1]
+
         keep = (w > self.min_gt_bbox_wh[0]) & (h > self.min_gt_bbox_wh[1])
         if not keep.any():
             return None

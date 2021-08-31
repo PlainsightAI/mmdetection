@@ -681,9 +681,11 @@ class Normalize:
             dict: Normalized results, 'img_norm_cfg' key is added into
                 result dict.
         """
+        print(np.max(results["img"].data))
         for key in results.get('img_fields', ['img']):
             results[key] = mmcv.imnormalize(results[key], self.mean, self.std,
                                             self.to_rgb)
+        # print(np.max(results[key].data))
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         return results
@@ -2254,7 +2256,6 @@ class MixUp:
             gt_bboxes_i = dataset.get_ann_info(index)['bboxes']
             if len(gt_bboxes_i) != 0:
                 break
-
         return index
 
     def _mixup_transform(self, results):
