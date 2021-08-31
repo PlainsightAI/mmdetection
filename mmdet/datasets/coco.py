@@ -72,10 +72,10 @@ class CocoDataset(CustomDataset):
         Returns:
             dict: Annotation info of specified index.
         """
-
         img_id = self.data_infos[idx]['id']
         ann_ids = self.coco.get_ann_ids(img_ids=[img_id])
         ann_info = self.coco.load_anns(ann_ids)
+
         return self._parse_ann_info(self.data_infos[idx], ann_info)
 
     def get_cat_ids(self, idx):
@@ -139,10 +139,12 @@ class CocoDataset(CustomDataset):
             x1, y1, w, h = ann['bbox']
             inter_w = max(0, min(x1 + w, img_info['width']) - max(x1, 0))
             inter_h = max(0, min(y1 + h, img_info['height']) - max(y1, 0))
+
             if inter_w * inter_h == 0:
                 continue
-            if ann['area'] <= 0 or w < 1 or h < 1:
-                continue
+            # NOTE: (Steve) Commented out for our stuff
+            # if ann['area'] <= 0 or w < 1 or h < 1:
+            #     continue
             if ann['category_id'] not in self.cat_ids:
                 continue
             bbox = [x1, y1, x1 + w, y1 + h]
@@ -173,7 +175,6 @@ class CocoDataset(CustomDataset):
             bboxes_ignore=gt_bboxes_ignore,
             masks=gt_masks_ann,
             seg_map=seg_map)
-
         return ann
 
     def xyxy2xywh(self, bbox):

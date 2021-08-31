@@ -75,6 +75,7 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
         # in DETR, this is needed for the construction of masks, which is
         # then used for the transformer_head.
         batch_input_shape = tuple(imgs[0].size()[-2:])
+        print(batch_input_shape)
         for img_meta in img_metas:
             img_meta['batch_input_shape'] = batch_input_shape
 
@@ -118,6 +119,7 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
                 augs (multiscale, flip, etc.) and the inner list indicates
                 images in a batch.
         """
+
         for var, name in [(imgs, 'imgs'), (img_metas, 'img_metas')]:
             if not isinstance(var, list):
                 raise TypeError(f'{name} must be a list, but got {type(var)}')
@@ -153,7 +155,8 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
             return self.aug_test(imgs, img_metas, **kwargs)
 
     @auto_fp16(apply_to=('img', ))
-    def forward(self, img, img_metas, return_loss=True, **kwargs):
+    def forward(self, img, img_metas, return_loss=True, 
+            gt_bboxes=None, gt_labels=None, gt_bboxes_ignore=None, gt_masks=None):
         """Calls either :func:`forward_train` or :func:`forward_test` depending
         on whether ``return_loss`` is ``True``.
 
@@ -168,9 +171,9 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
             return self.onnx_export(img[0], img_metas[0])
 
         if return_loss:
-            return self.forward_train(img, img_metas, **kwargs)
+            return self.forward_train(img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore, gt_masks)
         else:
-            return self.forward_test(img, img_metas, **kwargs)
+            return self.forward_test(img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore, gt_masks)
 
     def _parse_losses(self, losses):
         """Parse the raw outputs (losses) of the network.

@@ -3,7 +3,7 @@ import collections
 from mmcv.utils import build_from_cfg
 
 from ..builder import PIPELINES
-
+import torch 
 
 @PIPELINES.register_module()
 class Compose:
@@ -18,6 +18,7 @@ class Compose:
         assert isinstance(transforms, collections.abc.Sequence)
         self.transforms = []
         for transform in transforms:
+            print(transform["type"])
             if isinstance(transform, dict):
                 transform = build_from_cfg(transform, PIPELINES)
                 self.transforms.append(transform)
