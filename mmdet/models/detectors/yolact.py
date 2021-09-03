@@ -4,6 +4,7 @@ from mmdet.core import bbox2result
 from ..builder import DETECTORS, build_head
 from .single_stage import SingleStageDetector
 
+from torchvision.utils import save_image
 
 @DETECTORS.register_module()
 class YOLACT(SingleStageDetector):
@@ -67,7 +68,12 @@ class YOLACT(SingleStageDetector):
         #     for gt_mask in gt_masks
         # ]
 
+        # for idx, i in enumerate(img):
+        #     print(torch.max(i), torch.min(i))
+        #     save_image(i, f'{idx}_sml.png')
+
         x = self.extract_feat(img)
+
 
         cls_score, bbox_pred, coeff_pred = self.bbox_head(x)
         
