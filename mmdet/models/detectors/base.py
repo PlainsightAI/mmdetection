@@ -109,7 +109,7 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
         else:
             raise NotImplementedError
 
-    def forward_test(self, imgs, img_metas, **kwargs):
+    def forward_test(self, imgs, img_metas, kwargs={}):  # changed this for jit scripting
         """
         Args:
             imgs (List[Tensor]): the outer list indicates test-time
