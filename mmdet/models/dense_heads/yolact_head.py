@@ -781,12 +781,12 @@ class YOLACTProtonet(BaseModule):
             if num_pos == 0:
                 loss = cur_mask_pred.sum() * 0.
             elif mask_targets is None:
-                loss = F.binary_cross_entropy(cur_mask_pred,
+                loss = F.binary_cross_entropy_with_logits(cur_mask_pred,
                                               torch.zeros_like(cur_mask_pred),
                                               torch.zeros_like(cur_mask_pred))
             else:
                 cur_mask_pred = torch.clamp(cur_mask_pred, 0, 1)
-                loss = F.binary_cross_entropy(
+                loss = F.binary_cross_entropy_with_logits(
                     cur_mask_pred, mask_targets,
                     reduction='none') * self.loss_mask_weight
 
